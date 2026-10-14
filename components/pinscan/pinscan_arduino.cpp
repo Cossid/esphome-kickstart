@@ -1,3 +1,4 @@
+#if defined(USE_ARDUINO)
 
 #include "pinscan.h"
 #include "Arduino.h"
@@ -6,6 +7,11 @@ namespace esphome {
 namespace pinscan {
 
 static const char *const TAG = "pinscan";
+
+// Pins that can interfere with the chip or the device's own link are left out of the pin map unless
+// the matching flag is defined (e.g. via build_flags): PINSCAN_ALLOW_FLASH_PINS (SPI flash/PSRAM),
+// PINSCAN_ALLOW_USB_PINS (USB D+/D-), PINSCAN_ALLOW_UART_PINS (UART0 TX/RX).
+// Note that enabling these flags changes which GPIO each pin index maps to.
 
 #if defined(LT_BK7231N) || defined(LT_BK7231T)
 static const int PIN_MAP[] = {
@@ -119,46 +125,191 @@ static const int PIN_MAP[] = {
 };
 #elif defined(USE_ESP8266)
 static const int PIN_MAP[] = {
-    0,    // GPIO0
-    1,    // GPIO1
-    2,    // GPIO2 / SDA
-    3,    // GPIO3
-    4,    // GPIO4
-    5,    // GPIO5 / SCL
-    12,   // GPIO12 / MISO
-    13,   // GPIO13 / MOSI
-    14,   // GPIO14 / SCK
-    15,   // GPIO15 / SS
-    16,   // GPIO16
+    0,   // GPIO0
+    1,   // GPIO1
+    2,   // GPIO2 / SDA
+    3,   // GPIO3
+    4,   // GPIO4
+    5,   // GPIO5 / SCL
+    12,  // GPIO12 / MISO
+    13,  // GPIO13 / MOSI
+    14,  // GPIO14 / SCK
+    15,  // GPIO15 / SS
+    16,  // GPIO16
+};
+#elif defined(USE_ESP32_VARIANT_ESP32C3)
+static const int PIN_MAP[] = {
+    0,   // GPIO0 / ADC1_0
+    1,   // GPIO1 / ADC1_1
+    2,   // GPIO2 / ADC1_2
+    3,   // GPIO3 / ADC1_3
+    4,   // GPIO4 / ADC1_4 / MTMS
+    5,   // GPIO5 / ADC2_0 / MTDI
+    6,   // GPIO6 / MTCK
+    7,   // GPIO7 / MTDO
+    8,   // GPIO8
+    9,   // GPIO9
+    10,  // GPIO10
+#ifdef PINSCAN_ALLOW_FLASH_PINS
+    11,  // GPIO11 / VDD_SPI / SPI flash
+    12,  // GPIO12 / SPI flash
+    13,  // GPIO13 / SPI flash
+    14,  // GPIO14 / SPI flash
+    15,  // GPIO15 / SPI flash
+    16,  // GPIO16 / SPI flash
+    17,  // GPIO17 / SPI flash
+#endif
+#ifdef PINSCAN_ALLOW_USB_PINS
+    18,  // GPIO18 / USB D-
+    19,  // GPIO19 / USB D+
+#endif
+#ifdef PINSCAN_ALLOW_UART_PINS
+    20,  // GPIO20 / U0RXD
+    21,  // GPIO21 / U0TXD
+#endif
+};
+#elif defined(USE_ESP32_VARIANT_ESP32S2)
+static const int PIN_MAP[] = {
+    0,   // GPIO0
+    1,   // GPIO1
+    2,   // GPIO2
+    3,   // GPIO3
+    4,   // GPIO4
+    5,   // GPIO5
+    6,   // GPIO6
+    7,   // GPIO7
+    8,   // GPIO8
+    9,   // GPIO9
+    10,  // GPIO10
+    11,  // GPIO11
+    12,  // GPIO12
+    13,  // GPIO13
+    14,  // GPIO14
+    15,  // GPIO15
+    16,  // GPIO16
+    17,  // GPIO17
+    18,  // GPIO18
+#ifdef PINSCAN_ALLOW_USB_PINS
+    19,  // GPIO19 / USB D-
+    20,  // GPIO20 / USB D+
+#endif
+    21,  // GPIO21
+#ifdef PINSCAN_ALLOW_FLASH_PINS
+    26,  // GPIO26 / SPI flash/PSRAM
+    27,  // GPIO27 / SPI flash/PSRAM
+    28,  // GPIO28 / SPI flash/PSRAM
+    29,  // GPIO29 / SPI flash/PSRAM
+    30,  // GPIO30 / SPI flash/PSRAM
+    31,  // GPIO31 / SPI flash/PSRAM
+    32,  // GPIO32 / SPI flash/PSRAM
+#endif
+    33,  // GPIO33
+    34,  // GPIO34
+    35,  // GPIO35
+    36,  // GPIO36
+    37,  // GPIO37
+    38,  // GPIO38
+    39,  // GPIO39 / MTCK
+    40,  // GPIO40 / MTDO
+    41,  // GPIO41 / MTDI
+    42,  // GPIO42 / MTMS
+#ifdef PINSCAN_ALLOW_UART_PINS
+    43,  // GPIO43 / U0TXD
+    44,  // GPIO44 / U0RXD
+#endif
+    45,  // GPIO45
+    46,  // GPIO46 / input only
+};
+#elif defined(USE_ESP32_VARIANT_ESP32S3)
+static const int PIN_MAP[] = {
+    0,   // GPIO0
+    1,   // GPIO1
+    2,   // GPIO2
+    3,   // GPIO3
+    4,   // GPIO4
+    5,   // GPIO5
+    6,   // GPIO6
+    7,   // GPIO7
+    8,   // GPIO8
+    9,   // GPIO9
+    10,  // GPIO10
+    11,  // GPIO11
+    12,  // GPIO12
+    13,  // GPIO13
+    14,  // GPIO14
+    15,  // GPIO15
+    16,  // GPIO16
+    17,  // GPIO17
+    18,  // GPIO18
+#ifdef PINSCAN_ALLOW_USB_PINS
+    19,  // GPIO19 / USB D-
+    20,  // GPIO20 / USB D+
+#endif
+    21,  // GPIO21
+#ifdef PINSCAN_ALLOW_FLASH_PINS
+    26,  // GPIO26 / SPI flash/PSRAM
+    27,  // GPIO27 / SPI flash/PSRAM
+    28,  // GPIO28 / SPI flash/PSRAM
+    29,  // GPIO29 / SPI flash/PSRAM
+    30,  // GPIO30 / SPI flash/PSRAM
+    31,  // GPIO31 / SPI flash/PSRAM
+    32,  // GPIO32 / SPI flash/PSRAM
+    33,  // GPIO33 / octal flash/PSRAM
+    34,  // GPIO34 / octal flash/PSRAM
+    35,  // GPIO35 / octal flash/PSRAM
+    36,  // GPIO36 / octal flash/PSRAM
+    37,  // GPIO37 / octal flash/PSRAM
+#endif
+    38,  // GPIO38
+    39,  // GPIO39 / MTCK
+    40,  // GPIO40 / MTDO
+    41,  // GPIO41 / MTDI
+    42,  // GPIO42 / MTMS
+#ifdef PINSCAN_ALLOW_UART_PINS
+    43,  // GPIO43 / U0TXD
+    44,  // GPIO44 / U0RXD
+#endif
+    45,  // GPIO45
+    46,  // GPIO46
+    47,  // GPIO47
+    48,  // GPIO48
 };
 #elif defined(USE_ESP32)
 static const int PIN_MAP[] = {
-    0,     // GPIO0
-    1,     // GPIO1
-    2,     // GPIO2
-    3,     // GPIO3
-    4,     // GPIO4
-    5,     // GPIO5
-    12,    // GPIO12
-    13,    // GPIO13
-    14,    // GPIO14
-    15,    // GPIO15
-    16,    // GPIO16
-    17,    // GPIO17
-    18,    // GPIO18
-    19,    // GPIO19 / MISO
-    21,    // GPIO21 / SDA
-    22,    // GPIO22 / SCL
-    23,    // GPIO23 / MOSI
-    25,    // GPIO25 / DAC1
-    26,    // GPIO26 / DAC2
-    27,    // GPIO27
-    32,    // GPIO32
-    33,    // GPIO33
-    34,    // GPIO34
-    35,    // GPIO35
-    36,    // GPIO36
-    39,    // GPIO39
+    0,  // GPIO0
+    1,  // GPIO1
+    2,  // GPIO2
+    3,  // GPIO3
+    4,  // GPIO4
+    5,  // GPIO5
+#ifdef PINSCAN_ALLOW_FLASH_PINS
+    6,   // GPIO6 / SPI flash
+    7,   // GPIO7 / SPI flash
+    8,   // GPIO8 / SPI flash
+    9,   // GPIO9 / SPI flash
+    10,  // GPIO10 / SPI flash
+    11,  // GPIO11 / SPI flash
+#endif
+    12,  // GPIO12
+    13,  // GPIO13
+    14,  // GPIO14
+    15,  // GPIO15
+    16,  // GPIO16
+    17,  // GPIO17
+    18,  // GPIO18
+    19,  // GPIO19 / MISO
+    21,  // GPIO21 / SDA
+    22,  // GPIO22 / SCL
+    23,  // GPIO23 / MOSI
+    25,  // GPIO25 / DAC1
+    26,  // GPIO26 / DAC2
+    27,  // GPIO27
+    32,  // GPIO32
+    33,  // GPIO33
+    34,  // GPIO34
+    35,  // GPIO35
+    36,  // GPIO36
+    39,  // GPIO39
 };
 #else
 #error "Unsupported chip type"
@@ -232,3 +383,5 @@ void Pinscan::update() {
 
 }  // namespace pinscan
 }  // namespace esphome
+
+#endif  // USE_ARDUINO
